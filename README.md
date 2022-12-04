@@ -1,6 +1,6 @@
 docker-compose up --build
 
-http://0.0.0.0:8000/docs
+http://0.0.0.0:8008/docs
 
 POST /transaction
 
