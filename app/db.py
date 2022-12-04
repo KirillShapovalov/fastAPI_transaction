@@ -5,6 +5,8 @@ import sqlalchemy
 from typing import AsyncGenerator
 from .config import settings
 from asyncpg.connection import Connection
+from typing import Optional
+from datetime import datetime
 
 database = databases.Database(settings.db_url)
 metadata = sqlalchemy.MetaData()
@@ -24,6 +26,19 @@ class User(ormar.Model):
     email: str = ormar.String(max_length=128, unique=True, nullable=False)
     balance: float = ormar.Float(minimum=0)
     status: str = ormar.String(max_length=512)
+    updated: datetime = ormar.DateTime(nullable=True)
+
+
+class Transaction(ormar.Model):
+    class Meta(BaseMeta):
+        tablename = "transaction"
+
+    id: int = ormar.Integer(primary_key=True)
+    user: Optional[User] = ormar.ForeignKey(User)
+    type: str = ormar.String(max_length=128, nullable=False, choices=['increase', 'decrease'])
+    amount: float = ormar.Float(minimum=0)
+    status: str = ormar.String(max_length=512, choices=['success', 'fail'], nullable=True)
+    created: datetime = ormar.DateTime(default=datetime.now())
 
 
 async def _get_connection_from_pool() -> AsyncGenerator[Connection, None]:
